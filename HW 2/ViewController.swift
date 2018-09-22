@@ -13,9 +13,11 @@ class ViewController: UIViewController {
     @IBOutlet weak var redLabel: UILabel!
     @IBOutlet weak var greenLabel: UILabel!
     @IBOutlet weak var blueLabel: UILabel!
+    
     @IBOutlet weak var redSlider: UISlider!
     @IBOutlet weak var greenSlider: UISlider!
     @IBOutlet weak var blueSlider: UISlider!
+    
     @IBOutlet weak var redTextField: UITextField!
     @IBOutlet weak var greenTextField: UITextField!
     @IBOutlet weak var blueTextField: UITextField!
@@ -33,6 +35,10 @@ class ViewController: UIViewController {
         changeColor()
         rgbValueForLabel()
         rgbValueForTextField()
+        
+        addDoneButtonTo(redTextField)
+        addDoneButtonTo(greenTextField)
+        addDoneButtonTo(blueTextField)
         
     }
 
@@ -108,5 +114,35 @@ extension ViewController: UITextFieldDelegate {
             changeColor()
             rgbValueForLabel()
         }
+    }
+}
+
+// MARK: Работа с клавиатурой
+
+extension ViewController {
+    
+    // Метод для отображения кнопки "Готово" на цифровой клавиатуре
+    private func addDoneButtonTo(_ textField: UITextField) {
+        
+        let keyboardToolbar = UIToolbar()
+        textField.inputAccessoryView = keyboardToolbar
+        keyboardToolbar.sizeToFit()
+        
+        let doneButton = UIBarButtonItem(title:"Done",
+                                         style: .done,
+                                         target: self,
+                                         action: #selector(didTapDone))
+        
+        let flexBarButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
+                                            target: nil,
+                                            action: nil)
+        
+        
+        
+        keyboardToolbar.items = [flexBarButton, doneButton]
+    }
+    
+    @objc private func didTapDone() {
+        self.view.endEditing(true)
     }
 }
