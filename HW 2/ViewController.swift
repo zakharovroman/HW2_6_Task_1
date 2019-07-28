@@ -10,6 +10,8 @@ import UIKit
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var colorView: UIView!
+    
     @IBOutlet weak var redLabel: UILabel!
     @IBOutlet weak var greenLabel: UILabel!
     @IBOutlet weak var blueLabel: UILabel!
@@ -22,8 +24,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var greenTextField: UITextField!
     @IBOutlet weak var blueTextField: UITextField!
     
-    @IBOutlet weak var colorView: UIView!
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -32,45 +32,59 @@ class ViewController: UIViewController {
         redSlider.tintColor = .red
         greenSlider.tintColor = .green
         
-        changeColor()
-        rgbValueForLabel()
-        rgbValueForTextField()
+        setColor()
+        setValueForLabel()
+        setValueForTextField()
         
         addDoneButtonTo(redTextField)
         addDoneButtonTo(greenTextField)
         addDoneButtonTo(blueTextField)
         
     }
-
+    
+    // Изменение цветов слайдерами
+    @IBAction func rgbSlider(_ sender: UISlider) {
+        
+        switch sender.tag {
+        case 0:
+            redLabel.text = string(from: sender)
+            redTextField.text = string(from: sender)
+        case 1:
+            greenLabel.text = string(from: sender)
+            greenTextField.text = string(from: sender)
+        case 2:
+            blueLabel.text = string(from: sender)
+            blueTextField.text = string(from: sender)
+        default:
+            break
+        }
+        
+        setColor()
+    }
+    
     // Цвет вью
-    func changeColor() {
+    private func setColor() {
         colorView.backgroundColor = UIColor(red: CGFloat(redSlider.value),
                                             green: CGFloat(greenSlider.value),
                                             blue: CGFloat(blueSlider.value),
                                             alpha: 1)
     }
     
+    private func setValueForLabel() {
+        redLabel.text = string(from: redSlider)
+        greenLabel.text = string(from: greenSlider)
+        blueLabel.text = string(from: blueSlider)
+    }
+    
+    private func setValueForTextField() {
+        redTextField.text = string(from: redSlider)
+        greenTextField.text = string(from: greenSlider)
+        blueTextField.text = string(from: blueSlider)
+    }
+    
     // Значения RGB
-    func rgbValueForLabel() {
-        
-        redLabel.text = String(format: "%.2f", redSlider.value)
-        greenLabel.text = String(format: "%.2f", greenSlider.value)
-        blueLabel.text = String(format: "%.2f", blueSlider.value)
-    }
-    
-    func rgbValueForTextField() {
-        
-        redTextField.text = String(format: "%.2f", redSlider.value)
-        greenTextField.text = String(format: "%.2f", greenSlider.value)
-        blueTextField.text = String(format: "%.2f", blueSlider.value)
-    }
-    
-    // Изменение цветов слайдерами
-    @IBAction func rgbSlider(_ sender: UISlider) {
-        
-        changeColor()
-        rgbValueForLabel()
-        rgbValueForTextField()
+    private func string(from slider: UISlider) -> String {
+        return String(format: "%.2f", slider.value)
     }
 }
 
@@ -86,38 +100,29 @@ extension ViewController: UITextFieldDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         
-        self.view.endEditing(true) // Скрывает клавиатуру, вызванную для любого объекта
+        view.endEditing(true) // Скрывает клавиатуру, вызванную для любого объекта
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         
-        var value = redTextField.text!
+        guard let text = textField.text else { return }
         
-        if let number = Float(value) {
-            redSlider.value = number
-            changeColor()
-            rgbValueForLabel()
-        }
-        
-        value = greenTextField.text!
-        
-        if let number = Float(value) {
-            greenSlider.value = number
-            changeColor()
-            rgbValueForLabel()
-        }
-        
-        value = blueTextField.text!
-        
-        if let number = Float(value) {
-            blueSlider.value = number
-            changeColor()
-            rgbValueForLabel()
+        if let currentValue = Float(text) {
+            
+            switch textField.tag {
+            case 0: redSlider.value = currentValue
+            case 1: greenSlider.value = currentValue
+            case 2: blueSlider.value = currentValue
+            default: break
+            }
+            
+            setColor()
+            setValueForLabel()
+        } else {
+            showAlert(title: "Wrong format!", message: "Please enter correct value")
         }
     }
 }
-
-// MARK: Работа с клавиатурой
 
 extension ViewController {
     
@@ -143,6 +148,13 @@ extension ViewController {
     }
     
     @objc private func didTapDone() {
-        self.view.endEditing(true)
+        view.endEditing(true)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .default)
+        alert.addAction(okAction)
+        present(alert, animated: true)
     }
 }
