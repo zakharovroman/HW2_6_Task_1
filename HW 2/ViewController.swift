@@ -33,12 +33,10 @@ class ViewController: UIViewController {
         greenSlider.tintColor = .green
         
         setColor()
-        setValueForLabel()
-        setValueForTextField()
+        setValue(for: redLabel, greenLabel, blueLabel)
+        setValue(for: redTextField, greenTextField, blueTextField)
         
-        addDoneButtonTo(redTextField)
-        addDoneButtonTo(greenTextField)
-        addDoneButtonTo(blueTextField)
+        addDoneButtonTo(redTextField, greenTextField, blueTextField)
         
     }
     
@@ -55,8 +53,7 @@ class ViewController: UIViewController {
         case 2:
             blueLabel.text = string(from: sender)
             blueTextField.text = string(from: sender)
-        default:
-            break
+        default: break
         }
         
         setColor()
@@ -70,16 +67,26 @@ class ViewController: UIViewController {
                                             alpha: 1)
     }
     
-    private func setValueForLabel() {
-        redLabel.text = string(from: redSlider)
-        greenLabel.text = string(from: greenSlider)
-        blueLabel.text = string(from: blueSlider)
+    private func setValue(for labels: UILabel...) {
+        labels.forEach { label in
+            switch label.tag {
+            case 0: redLabel.text = string(from: redSlider)
+            case 1: greenLabel.text = string(from: greenSlider)
+            case 2: blueLabel.text = string(from: blueSlider)
+            default: break
+            }
+        }
     }
     
-    private func setValueForTextField() {
-        redTextField.text = string(from: redSlider)
-        greenTextField.text = string(from: greenSlider)
-        blueTextField.text = string(from: blueSlider)
+    private func setValue(for textFields: UITextField...) {
+        textFields.forEach { textField in
+            switch textField.tag {
+            case 0: redTextField.text = string(from: redSlider)
+            case 1: greenTextField.text = string(from: greenSlider)
+            case 2: blueTextField.text = string(from: blueSlider)
+            default: break
+            }
+        }
     }
     
     // Значения RGB
@@ -88,6 +95,7 @@ class ViewController: UIViewController {
     }
 }
 
+// MARK: - UITextFieldDelegate
 extension ViewController: UITextFieldDelegate {
     
     // Скрываем клавиатуру нажатием на "Done"
@@ -108,16 +116,20 @@ extension ViewController: UITextFieldDelegate {
         guard let text = textField.text else { return }
         
         if let currentValue = Float(text) {
-            
             switch textField.tag {
-            case 0: redSlider.value = currentValue
-            case 1: greenSlider.value = currentValue
-            case 2: blueSlider.value = currentValue
+            case 0:
+                redSlider.value = currentValue
+                setValue(for: redLabel)
+            case 1:
+                greenSlider.value = currentValue
+                setValue(for: greenLabel)
+            case 2:
+                blueSlider.value = currentValue
+                setValue(for: blueLabel)
             default: break
             }
             
             setColor()
-            setValueForLabel()
         } else {
             showAlert(title: "Wrong format!", message: "Please enter correct value")
         }
@@ -127,24 +139,24 @@ extension ViewController: UITextFieldDelegate {
 extension ViewController {
     
     // Метод для отображения кнопки "Готово" на цифровой клавиатуре
-    private func addDoneButtonTo(_ textField: UITextField) {
+    private func addDoneButtonTo(_ textFields: UITextField...) {
         
-        let keyboardToolbar = UIToolbar()
-        textField.inputAccessoryView = keyboardToolbar
-        keyboardToolbar.sizeToFit()
-        
-        let doneButton = UIBarButtonItem(title:"Done",
-                                         style: .done,
-                                         target: self,
-                                         action: #selector(didTapDone))
-        
-        let flexBarButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
-                                            target: nil,
-                                            action: nil)
-        
-        
-        
-        keyboardToolbar.items = [flexBarButton, doneButton]
+        textFields.forEach { textField in
+            let keyboardToolbar = UIToolbar()
+            textField.inputAccessoryView = keyboardToolbar
+            keyboardToolbar.sizeToFit()
+            
+            let doneButton = UIBarButtonItem(title:"Done",
+                                             style: .done,
+                                             target: self,
+                                             action: #selector(didTapDone))
+            
+            let flexBarButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
+                                                target: nil,
+                                                action: nil)
+            
+            keyboardToolbar.items = [flexBarButton, doneButton]
+        }
     }
     
     @objc private func didTapDone() {
